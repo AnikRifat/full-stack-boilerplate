@@ -15,6 +15,7 @@ class Dashboard extends Component
     public function render(): View
     {
         Gate::authorize('dashboard.view');
+
         return view('livewire.admin.dashboard', [
             'userCount' => Gate::allows('users.view') ? User::where('role', '!=', Permissions::ROOT_ROLE)->count() : null,
             'employeeCount' => Gate::allows('employees.view') ? Employee::count() : null,

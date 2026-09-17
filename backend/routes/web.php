@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\MediaController;
 use App\Livewire\Admin\Dashboard;
 use App\Livewire\Admin\Media\Index as MediaIndex;
 use App\Livewire\Admin\Roles\Form as RoleForm;
@@ -12,13 +13,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/media/{media}/download', [\App\Http\Controllers\Api\V1\MediaController::class, 'download'])->middleware('signed')->name('media.download');
+Route::get('/media/{media}/download', [MediaController::class, 'download'])->middleware('signed')->name('media.download');
 Route::redirect('/', '/admin');
 Route::livewire('/admin/login', Login::class)->middleware('guest')->name('login');
 Route::post('/admin/logout', function (Request $request) {
     Auth::logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
+
     return redirect()->route('login');
 })->middleware('auth')->name('logout');
 

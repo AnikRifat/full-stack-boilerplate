@@ -11,7 +11,9 @@ use Livewire\Component;
 class Settings extends Component
 {
     public string $appName = '';
+
     public string $supportEmail = '';
+
     public bool $registrationEnabled = true;
 
     public function mount(): void
@@ -35,5 +37,8 @@ class Settings extends Component
         session()->flash('success', 'Application settings saved.');
     }
 
-    public function render(): View { return view('livewire.admin.settings')->layout('layouts.admin'); }
+    public function render(): View
+    {
+        return view('livewire.admin.settings')->layout('layouts.admin');
+    }
 }

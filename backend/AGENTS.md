@@ -1,3 +1,19 @@
+# Backend project rules
+
+Read `../AGENTS.md` and `../docs/architecture.md`. Laravel owns data and authorization; Livewire uses class components under `app/Livewire` with `layouts.admin` / `layouts.guest`. Every form control uses `x-form.*` components. Design values are centralized in `resources/css/app.css`.
+
+Use `App\Support\Permissions`, not Spatie or a second role implementation. System role names/grants are fixed in config. `role_permissions` contains custom roles and system assignment flags. Owner cannot be assigned or edited from admin. Personal denials only subtract from primary/extra system-role grants. See `../docs/permissions.md`.
+
+All permanent storage/URLs/deletion/replacement uses `App\Services\MediaService`. Owner models use `App\Concerns\HasMedia`. Secrets stay in environment/config files. See `../docs/media.md`.
+
+Checks: `composer check`, `php artisan test --compact`, `vendor/bin/pint`, `npm run build`. PHPUnit tests use isolated SQLite; never run destructive migration commands against a real project database. Composer's PHP platform is pinned to 8.3 for portable dependency resolution.
+
+Backend/API changes must preserve the frontend contracts. Administrative management is Livewire; versioned API endpoints are auth/profile/configuration/media. Hosting is unspecified; no payment, external broker or domain queue is present. Boost MCP is configured locally but availability must be verified in the host.
+
+## gstack
+
+Use `/browse` from gstack for all web browsing; never use `mcp__claude-in-chrome__*`. Global available workflow skills and engineering routing are listed in `../AGENTS.md`.
+
 <laravel-boost-guidelines>
 === foundation rules ===
 

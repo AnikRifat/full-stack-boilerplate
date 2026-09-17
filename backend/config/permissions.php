@@ -11,7 +11,7 @@ return [
         'Administration' => ['admin.access', 'dashboard.view'],
         'Users' => ['users.view', 'users.create', 'users.update'],
         'Employees' => ['employees.view', 'employees.create', 'employees.update'],
-        'Roles' => ['roles.view', 'roles.create', 'roles.update', 'roles.delete', 'permissions.manage'],
+        'Roles' => ['roles.view', 'roles.create', 'roles.update', 'roles.delete', 'roles.assign', 'permissions.manage'],
         'Settings' => ['settings.view', 'settings.update'],
         'Media' => ['media.view', 'media.upload', 'media.delete', 'media.manage'],
     ],

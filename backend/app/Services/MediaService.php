@@ -35,7 +35,9 @@ class MediaService
         $uuid = (string) Str::uuid();
         $extension = $file->guessExtension() ?? 'bin';
         $path = Storage::disk($disk)->putFileAs('media/'.now()->format('Y/m'), $file, $uuid.'.'.$extension);
-        if (! is_string($path) || $path === '') { throw new RuntimeException('Media storage failed.'); }
+        if (! is_string($path) || $path === '') {
+            throw new RuntimeException('Media storage failed.');
+        }
         $dimensions = str_starts_with((string) $file->getMimeType(), 'image/') ? @getimagesize($file->getRealPath()) : false;
         try {
             return Media::create([
@@ -67,7 +69,9 @@ class MediaService
     public function delete(Media $media, User $actor): void
     {
         Gate::forUser($actor)->authorize('delete', $media);
-        if (! Storage::disk($media->disk)->delete($media->path)) { throw new RuntimeException('Media deletion failed.'); }
+        if (! Storage::disk($media->disk)->delete($media->path)) {
+            throw new RuntimeException('Media deletion failed.');
+        }
         $media->delete();
     }
 
@@ -81,6 +85,7 @@ class MediaService
             $this->delete($replacement, $actor);
             throw $error;
         }
+
         return $replacement;
     }
 }

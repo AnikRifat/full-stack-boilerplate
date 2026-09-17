@@ -17,6 +17,7 @@ class Index extends Component
         abort_unless(in_array($role, $registry->assignableRoles(), true) && $registry->isCustom($role), 403);
         if ($registry->holders($role) > 0) {
             $this->addError('role', 'Move all users to another role before deleting this role.');
+
             return;
         }
         RolePermission::where('role', $role)->delete();
@@ -28,6 +29,7 @@ class Index extends Component
     {
         Gate::authorize('roles.view');
         $registry = app(Permissions::class);
+
         return view('livewire.admin.roles.index', ['registry' => $registry, 'roles' => $registry->assignableRoles()])->layout('layouts.admin');
     }
 }

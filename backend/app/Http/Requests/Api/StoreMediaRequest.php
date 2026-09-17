@@ -9,8 +9,18 @@ class StoreMediaRequest extends FormRequest
 {
     protected function prepareForValidation(): void
     {
-        if (! $this->has('collection')) { $this->merge(['collection' => 'default']); }
+        if (! $this->has('collection')) {
+            $this->merge(['collection' => 'default']);
+        }
     }
-    public function authorize(): bool { return $this->user()?->hasPermission('media.upload') ?? false; }
-    public function rules(): array { return MediaService::rules(); }
+
+    public function authorize(): bool
+    {
+        return $this->user()?->hasPermission('media.upload') ?? false;
+    }
+
+    public function rules(): array
+    {
+        return MediaService::rules();
+    }
 }

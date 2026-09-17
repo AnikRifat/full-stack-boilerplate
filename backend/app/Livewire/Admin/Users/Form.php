@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\User;
 use App\Support\Permissions;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -18,22 +19,38 @@ class Form extends Component
 {
     #[Locked]
     public ?int $userId = null;
+
     #[Locked]
     public bool $employee = false;
+
     public string $name = '';
+
     public string $email = '';
+
     public string $password = '';
+
     public string $password_confirmation = '';
+
     public bool $isActive = true;
+
     public string $role = 'member';
+
     public array $extraRoles = [];
+
     public array $permissions = [];
+
     public string $employeeCode = '';
+
     public string $jobTitle = '';
+
     public string $department = '';
+
     public string $phone = '';
 
-    public function module(): string { return $this->employee ? 'employees' : 'users'; }
+    public function module(): string
+    {
+        return $this->employee ? 'employees' : 'users';
+    }
 
     public function mount(?User $user = null, bool $employee = false): void
     {
@@ -48,7 +65,7 @@ class Form extends Component
             $this->isActive = $user->is_active;
             $this->role = $user->role;
             $this->extraRoles = $user->extra_roles ?? [];
-            $this->permissions = app(Permissions::class)->forUser($user);
+            $this->refreshPermissions();
             $this->employeeCode = $user->employee?->employee_code ?? '';
             $this->jobTitle = $user->employee?->job_title ?? '';
             $this->department = $user->employee?->department ?? '';
@@ -59,8 +76,15 @@ class Form extends Component
         }
     }
 
-    public function updatedRole(): void { $this->refreshPermissions(); }
-    public function updatedExtraRoles(): void { $this->refreshPermissions(); }
+    public function updatedRole(): void
+    {
+        $this->refreshPermissions();
+    }
+
+    public function updatedExtraRoles(): void
+    {
+        $this->refreshPermissions();
+    }
 
     private function refreshPermissions(): void
     {
@@ -68,17 +92,24 @@ class Form extends Component
         $this->permissions = array_values(array_diff(app(Permissions::class)->roleCeiling($this->role, $this->extraRoles), $denied));
     }
 
-    public function save(): ?Redirector
+    public function save(): Redirector|RedirectResponse|null
     {
         Gate::authorize($this->module().($this->userId ? '.update' : '.create'));
         $registry = app(Permissions::class);
         $existing = $this->userId ? User::findOrFail($this->userId) : null;
         abort_if($existing?->isRoot(), 403);
         abort_if($this->employee && $existing && ! $existing->employee, 404);
+        $previousRole = $existing?->role ?? ($this->employee ? 'employee' : 'member');
+        $previousExtras = $existing?->extra_roles ?? [];
+        if ($this->role !== $previousRole || array_diff($this->extraRoles, $previousExtras) || array_diff($previousExtras, $this->extraRoles)) {
+            Gate::authorize('roles.assign');
+        }
         $this->email = strtolower(trim($this->email));
         $allowedRoles = $registry->enabledRoles();
         // A disabled role remains valid for its existing holder, but cannot be newly assigned.
-        if ($existing && ! in_array($existing->role, $allowedRoles, true)) { $allowedRoles[] = $existing->role; }
+        if ($existing && ! in_array($existing->role, $allowedRoles, true)) {
+            $allowedRoles[] = $existing->role;
+        }
         $allowedExtras = array_intersect($registry->systemRoles(), $registry->enabledRoles());
         $allowedExtras = array_unique([...$allowedExtras, ...($existing->extra_roles ?? [])]);
         $rules = [
@@ -98,12 +129,15 @@ class Form extends Component
         $data = $this->validate($rules);
         if ($existing?->is(auth()->user())) {
             $this->addError('role', 'Ask another administrator to change your own access.');
+
             return null;
         }
         DB::transaction(function () use ($data, $existing, $registry): void {
             $user = $existing ?? new User;
             $user->fill(['name' => $data['name'], 'email' => $data['email']]);
-            if ($data['password'] !== '') { $user->password = $data['password']; }
+            if ($data['password'] !== '') {
+                $user->password = $data['password'];
+            }
             $user->forceFill(['is_active' => $data['isActive'], 'role' => $data['role'], 'extra_roles' => array_values(array_unique($data['extraRoles']))]);
             if (Gate::allows('permissions.manage')) {
                 $user->denied_permissions = array_values(array_diff($registry->roleCeiling($data['role'], $data['extraRoles']), $data['permissions']));
@@ -117,12 +151,14 @@ class Form extends Component
             }
         });
         session()->flash('success', 'Account saved.');
+
         return redirect()->route('admin.'.$this->module().'.index');
     }
 
     public function render(): View
     {
         $registry = app(Permissions::class);
+
         return view('livewire.admin.users.form', ['registry' => $registry,
             'roleOptions' => collect($registry->assignableRoles())->mapWithKeys(fn (string $role): array => [$role => $registry->label($role).($registry->isActive($role) ? '' : ' (disabled)')])->all(),
             'ceiling' => $registry->roleCeiling($this->role, $this->extraRoles),

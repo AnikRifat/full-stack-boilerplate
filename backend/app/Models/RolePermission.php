@@ -13,5 +13,8 @@ class RolePermission extends Model
     /** @use HasFactory<RolePermissionFactory> */
     use HasFactory;
 
-    protected function casts(): array { return ['permissions' => 'array', 'is_active' => 'boolean']; }
+    protected function casts(): array
+    {
+        return ['permissions' => 'array', 'is_active' => 'boolean'];
+    }
 }

@@ -16,16 +16,29 @@ class Index extends Component
 
     #[Locked]
     public bool $employee = false;
+
     public string $search = '';
 
-    public function mount(bool $employee = false): void { $this->employee = $employee; }
-    public function updatedSearch(): void { $this->resetPage(); }
-    public function module(): string { return $this->employee ? 'employees' : 'users'; }
+    public function mount(bool $employee = false): void
+    {
+        $this->employee = $employee;
+    }
+
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function module(): string
+    {
+        return $this->employee ? 'employees' : 'users';
+    }
 
     public function render(): View
     {
         Gate::authorize($this->module().'.view');
         $search = substr($this->search, 0, 100);
+
         return view('livewire.admin.users.index', [
             'users' => User::with('employee')->where('role', '!=', Permissions::ROOT_ROLE)
                 ->when($this->employee, fn ($query) => $query->whereHas('employee'))

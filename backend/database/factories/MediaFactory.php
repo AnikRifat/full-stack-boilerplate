@@ -13,6 +13,7 @@ class MediaFactory extends Factory
     public function definition(): array
     {
         $uuid = (string) Str::uuid();
+
         return ['uuid' => $uuid, 'uploaded_by' => User::factory(), 'collection' => 'default', 'disk' => 'local',
             'path' => 'media/'.$uuid.'.txt', 'filename' => 'example.txt', 'mime_type' => 'text/plain', 'size' => 10];
     }
