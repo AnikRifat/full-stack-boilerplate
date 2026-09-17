@@ -40,6 +40,14 @@ npm run dev
 - Admin: http://127.0.0.1:8000/admin
 - API health: http://127.0.0.1:8000/api/v1/health
 
+### Try the demo data
+
+```sh
+npm run demo
+```
+
+Seeds one account per role (owner, administrator, employee, a custom `support-agent`, member, plus a suspended account) and prints a freshly generated shared password once — nothing is hardcoded, so re-run it whenever you need the password again. Local-only: the seeder refuses to run when `APP_ENV=production`. Delete `backend/database/seeders/DemoSeeder.php` and the `demo` script when you start a real project.
+
 Use `127.0.0.1` consistently. The root `dev` command starts Laravel, Vite and Next.js together. Existing projects can use `composer install` and `npm ci` in each app; you do not need to rerun setup to develop.
 
 ## Checks

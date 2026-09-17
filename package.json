@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "setup": "bash scripts/setup.sh",
+    "demo": "php backend/artisan migrate --seed --seeder=DemoSeeder --no-interaction",
     "dev": "backend/node_modules/.bin/concurrently --kill-others -n backend,assets,frontend \"php backend/artisan serve --host=127.0.0.1 --port=8000\" \"npm --prefix backend run dev -- --host 127.0.0.1\" \"npm --prefix frontend run dev -- --hostname 127.0.0.1\"",
     "build": "npm --prefix backend run build && npm --prefix frontend run build",
     "check": "npm --prefix frontend run lint && npm --prefix frontend run typecheck && composer --working-dir=backend check",
