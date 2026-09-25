@@ -34,7 +34,7 @@ ALL permanent image/file operations go through `backend/app/Services/MediaServic
 
 ## Checks
 
-Run the relevant backend tests and Pint, plus frontend lint/types/build. Exercise affected UI flows before claiming completion. Do not substitute a fake S3 test for live provider verification. The backend currently has 38 passing behavior tests (recorded during initialization; update when coverage changes).
+Run the relevant backend tests and Pint, plus frontend lint/types/build. Exercise affected UI flows before claiming completion. Do not substitute a fake S3 test for live provider verification. The backend currently has 51 passing behavior tests (recorded during initialization; update when coverage changes).
 
 ## gstack
 

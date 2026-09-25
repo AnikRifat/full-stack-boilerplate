@@ -58,7 +58,7 @@ class Form extends Component
         $this->userId = $user?->exists ? $user->id : null;
         Gate::authorize($this->module().($this->userId ? '.update' : '.create'));
         if ($this->userId) {
-            abort_if($user->isRoot(), 403, 'The root account cannot be edited here.');
+            abort_if($user->isRoot(), 403, __('The super admin cannot be edited here.'));
             abort_if($employee && ! $user->employee, 404);
             $this->name = $user->name;
             $this->email = $user->email;
@@ -128,7 +128,7 @@ class Form extends Component
         }
         $data = $this->validate($rules);
         if ($existing?->is(auth()->user())) {
-            $this->addError('role', 'Ask another administrator to change your own access.');
+            $this->addError('role', __('Ask another administrator to change your own access.'));
 
             return null;
         }
@@ -150,7 +150,7 @@ class Form extends Component
                 ]);
             }
         });
-        session()->flash('success', 'Account saved.');
+        session()->flash('success', __('Account saved.'));
 
         return redirect()->route('admin.'.$this->module().'.index');
     }
@@ -160,7 +160,7 @@ class Form extends Component
         $registry = app(Permissions::class);
 
         return view('livewire.admin.users.form', ['registry' => $registry,
-            'roleOptions' => collect($registry->assignableRoles())->mapWithKeys(fn (string $role): array => [$role => $registry->label($role).($registry->isActive($role) ? '' : ' (disabled)')])->all(),
+            'roleOptions' => collect($registry->assignableRoles())->mapWithKeys(fn (string $role): array => [$role => $registry->label($role).($registry->isActive($role) ? '' : ' '.__('(disabled)'))])->all(),
             'ceiling' => $registry->roleCeiling($this->role, $this->extraRoles),
         ])->layout('layouts.admin');
     }

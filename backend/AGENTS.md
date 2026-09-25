@@ -2,7 +2,7 @@
 
 Read `../AGENTS.md` and `../docs/architecture.md`. Laravel owns data and authorization; Livewire uses class components under `app/Livewire` with `layouts.admin` / `layouts.guest`. Every form control uses `x-form.*` components. Design values are centralized in `resources/css/app.css`.
 
-Use `App\Support\Permissions`, not Spatie or a second role implementation. System role names/grants are fixed in config. `role_permissions` contains custom roles and system assignment flags. Owner cannot be assigned or edited from admin. Personal denials only subtract from primary/extra system-role grants. See `../docs/permissions.md`.
+Use `App\Support\Permissions`, not Spatie or a second role implementation. System role names are fixed in config; their config grants are defaults that the Roles screen can edit. `role_permissions` holds custom roles plus system-role availability and edited grants (`null` = config default). The single owner ("Super admin") passes every check via `Gate::before` and cannot be assigned or edited from admin. Personal denials only subtract from primary/extra system-role grants. See `../docs/permissions.md`.
 
 All permanent storage/URLs/deletion/replacement uses `App\Services\MediaService`. Owner models use `App\Concerns\HasMedia`. Secrets stay in environment/config files. See `../docs/media.md`.
 

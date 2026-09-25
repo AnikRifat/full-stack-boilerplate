@@ -8,6 +8,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +20,11 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
+        // The super admin skips every ability and policy check; a deactivated one gets nothing from here.
+        Gate::before(fn (User $user): ?bool => $user->isRoot() && $user->is_active ? true : null);
         foreach (app(Permissions::class)->catalogue() as $permission) {
             Gate::define($permission, fn (User $user): bool => $user->hasPermission($permission));
         }
