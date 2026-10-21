@@ -10,10 +10,6 @@ Checks: `composer check`, `php artisan test --compact`, `vendor/bin/pint`, `npm 
 
 Backend/API changes must preserve the frontend contracts. Administrative management is Livewire; versioned API endpoints are auth/profile/configuration/media. Hosting is unspecified; no payment, external broker or domain queue is present. Boost MCP is configured locally but availability must be verified in the host.
 
-## gstack
-
-Use `/browse` from gstack for all web browsing; never use `mcp__claude-in-chrome__*`. Global available workflow skills and engineering routing are listed in `../AGENTS.md`.
-
 <laravel-boost-guidelines>
 === foundation rules ===
 

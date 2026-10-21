@@ -8,7 +8,7 @@ Reusable boilerplate for arbitrary products: Laravel API/Livewire admin and Next
 - `frontend/`: Next.js 16 App Router, React 19, strict TypeScript, Tailwind 4, npm.
 - Database: SQLite locally and in isolated tests; native Laravel MySQL/PostgreSQL configuration is available.
 - Deploy target: unspecified. Both PHP and Node are required for the full stack; shared-hosting constraints are documented.
-- Read each application's own `AGENTS.md` before edits. Product/developer documentation lives in `docs/`; tool guidance belongs in `.codex/` or managed agent files.
+- Read each application's own `AGENTS.md` before edits. Product/developer documentation lives in `docs/`.
 
 ## Commands
 
@@ -28,16 +28,35 @@ Create the protected root interactively with `cd backend && php artisan app:crea
 
 Laravel owns all data, migrations, validation and authorization. Next.js uses a server-only API helper, runtime schema validation and server actions; never expose bearer credentials in a client bundle or localStorage. Keep API contracts synchronized across apps.
 
-Role behavior matches Shoplagbe's current code, with store tenancy removed: config system roles, database custom overlays, one primary role plus extra system roles, and personal denials. Owner access is protected. See `docs/permissions.md` before modifying access rules.
+Roles are config system roles plus database custom overlays, one primary role plus extra system roles, and personal denials. Owner access is protected. See `docs/permissions.md` before modifying access rules.
 
 ALL permanent image/file operations go through `backend/app/Services/MediaService.php` and the `media` table. Reuse `HasMedia` for owners; never call storage directly in feature code. Storage selection is environment-driven, but old records retain their original disk. Keep secrets outside application settings.
 
 ## Checks
 
-Run the relevant backend tests and Pint, plus frontend lint/types/build. Exercise affected UI flows before claiming completion. Do not substitute a fake S3 test for live provider verification. The backend currently has 51 passing behavior tests (recorded during initialization; update when coverage changes).
+Run the relevant backend tests and Pint, plus frontend lint/types/build. Exercise affected UI flows before claiming completion. Do not substitute a fake S3 test for live provider verification.
 
-## gstack
+## Agent setup
 
-Available global skills: office-hours, spec, review, browse, qa, qa-only, design-review, ship, land-and-deploy, canary, document-generate, document-release, retro, careful, freeze, guard and learn. Anik's project-init, arch-design, code-implement, behavior-verify and related method skills own overlapping engineering stages.
+`CLAUDE.md` files import the `AGENTS.md` beside them, so Claude Code, Codex and other agents read one source. Edit `AGENTS.md`; never fork the content into `CLAUDE.md`.
 
-Use `/browse` from gstack for all web browsing; never use `mcp__claude-in-chrome__*`. Do not deploy or perform git-writing ship workflows without an explicit request.
+| Runtime | Loads | Project tools |
+| --- | --- | --- |
+| Claude Code | `CLAUDE.md` → `@AGENTS.md`, nested ones when it works in `backend/` or `frontend/` | `.mcp.json` (Laravel Boost), `.claude/settings.json` (permissions) |
+| Codex | Root `AGENTS.md`, then the nearest nested `AGENTS.md` | `.codex/config.toml` (Laravel Boost) |
+
+A configured MCP server is not proof that it runs in the current session. Check the tool list before you rely on Boost.
+
+### Where knowledge goes
+
+| Kind of knowledge | Home |
+| --- | --- |
+| A rule for one application | That application's `AGENTS.md` |
+| A rule for the whole repository | This file |
+| A backend rule tied to file paths | `backend/.ai/rules` through Boost `record-rule`, only when a person asks for a rule |
+| Product behavior, API contract, decisions | `docs/` |
+| A personal preference or a note for one developer | The agent's own memory, never a committed file |
+
+Keep each `AGENTS.md` short: commands, boundaries and traps that the code does not show. Remove a line when the code makes it obvious or false.
+
+Do not deploy, publish, or run git-writing workflows without an explicit request.
