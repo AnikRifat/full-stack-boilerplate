@@ -6,13 +6,13 @@ A generic full stack boilerplate. Laravel owns the Livewire admin, API, database
 | --- | --- |
 | Administration | Session login/logout, dashboard, responsive layouts and reusable form components |
 | Users and employees | Accounts, activation, employee codes and profiles |
-| Roles and permissions | Shoplagbe-style config system roles, custom roles, extra system roles and personal denials |
+| Roles and permissions | Config system roles, database custom roles, extra system roles and personal denials |
 | Application settings | App name, support email and public registration switch |
 | Shared media | One service for admin/API uploads, file tracking, replacement, deletion and signed downloads |
 | Frontend | Registration, login, profile, file upload/list/delete and failure/loading states |
 | API | Versioned `/api/v1` auth, profile, public configuration and media endpoints |
 
-No commerce, logistics, payments, tenancy, or other domain modules are included. The source SawdahExpress project is unchanged.
+No commerce, logistics, payments, tenancy, or other domain modules are included.
 
 ## Requirements
 
@@ -60,10 +60,14 @@ npm run test     # Backend behavior suite, isolated SQLite
 
 Next.js production builds do not require a running backend. Runtime pages read public application settings from Laravel. The API URL is server-only (`frontend/.env.local` → `API_BASE_URL`); tokens never enter browser JavaScript or public environment variables.
 
+## Working with AI coding agents
+
+The repository is ready for Claude Code and Codex. Each `CLAUDE.md` imports the `AGENTS.md` beside it, so both read one set of instructions: the root file for the whole stack, then `backend/` or `frontend/` for that application. Laravel Boost is registered for both (`.mcp.json`, `.codex/config.toml`). `.claude/settings.json` allows the check commands and denies reading real `.env` files. See the agent section of [AGENTS.md](AGENTS.md) for where a new rule or decision belongs.
+
 ## Storage
 
 Default uploads use Laravel's private `local` disk. Set `MEDIA_DISK=s3` in `backend/.env` and fill the existing AWS configuration to use AWS S3 or an S3-compatible provider. `AWS_ENDPOINT` and `AWS_USE_PATH_STYLE_ENDPOINT` support alternative providers; use the values documented by your provider. Files retain the disk chosen when uploaded. There is no automatic copying of old files when storage configuration changes.
 
-See [media documentation](docs/media.md), [permission rules](docs/permissions.md), [API contract](docs/api.md), [architecture](docs/architecture.md), [deployment preparation](docs/deployment.md), and [source scan](docs/source-scan.md).
+See [media documentation](docs/media.md), [permission rules](docs/permissions.md), [API contract](docs/api.md), [architecture](docs/architecture.md), and [deployment preparation](docs/deployment.md).
 
 Deploying the full stack requires both PHP and Node capabilities. PHP-only shared hosting can run the backend while Next.js runs on another host. Production deployment and live S3 verification are outside the completed local checks.

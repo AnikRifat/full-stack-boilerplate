@@ -1,6 +1,6 @@
 # Roles and permissions
 
-This starter follows Shoplagbe's current identity implementation, with the tenant/store dimension removed.
+Access control is config roles plus database overlays, without a tenant or store dimension.
 
 | Rule | Behavior |
 | --- | --- |
@@ -10,7 +10,7 @@ This starter follows Shoplagbe's current identity implementation, with the tenan
 | Primary role | One enabled system/custom role per account |
 | Extra roles | System roles only; permissions are the union of primary and extra roles |
 | Personal overrides | `users.denied_permissions` subtracts from that union; it cannot grant an ability missing from the roles |
-| Disabled role | Unavailable for new assignments; existing holders retain their grants, matching Shoplagbe's current code |
+| Disabled role | Unavailable for new assignments; existing holders retain their grants |
 | Custom deletion | Refused while any account holds the role |
 | Rename | Changes a custom label, never the stored key |
 | Account suspension | Denies protected admin and API requests immediately |
@@ -23,4 +23,4 @@ Account creation defaults to `member`, or `employee` on the employee screen. Cha
 
 Role resolution is a scoped service; saving a `RolePermission` row flushes its cache. Add a concrete ability to `permissions.catalogue` before gating new code; add it to a system role or select it in a custom role to grant access. Custom-role editors accept catalogue abilities only, never arbitrary wildcard strings.
 
-Shoplagbe has some old comments describing an earlier config-only version and refusal to disable assigned roles. Its current actions support database custom roles and permit assignment disabling while preserving held grants; this starter follows that implemented behavior. Multi-tenancy, legacy commerce aliases, invitation workflows, platform roles, and live permission broadcasts are domain features and are excluded.
+Multi-tenancy, commerce role aliases, invitation workflows, platform roles, and live permission broadcasts are domain features and are excluded.
