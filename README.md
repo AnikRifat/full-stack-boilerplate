@@ -64,6 +64,8 @@ Next.js production builds do not require a running backend. Runtime pages read p
 
 The repository is ready for Claude Code and Codex. Each `CLAUDE.md` imports the `AGENTS.md` beside it, so both read one set of instructions: the root file for the whole stack, then `backend/` or `frontend/` for that application. Laravel Boost is registered for both (`.mcp.json`, `.codex/config.toml`). `.claude/settings.json` allows the check commands and denies reading real `.env` files. See the agent section of [AGENTS.md](AGENTS.md) for where a new rule or decision belongs.
 
+Optional machine tools that pair well with this repository: [RTK](https://github.com/rtk-ai/rtk) condenses command output (it has filters for `phpunit`, `pint`, `tsc`, `eslint` and `next`), the [Context7 CLI](https://github.com/upstash/context7) fetches version-matched library docs, and [ccusage](https://github.com/ccusage/ccusage) reports token spend. None is required.
+
 ## Storage
 
 Default uploads use Laravel's private `local` disk. Set `MEDIA_DISK=s3` in `backend/.env` and fill the existing AWS configuration to use AWS S3 or an S3-compatible provider. `AWS_ENDPOINT` and `AWS_USE_PATH_STYLE_ENDPOINT` support alternative providers; use the values documented by your provider. Files retain the disk chosen when uploaded. There is no automatic copying of old files when storage configuration changes.

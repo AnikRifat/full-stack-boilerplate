@@ -47,6 +47,16 @@ Run the relevant backend tests and Pint, plus frontend lint/types/build. Exercis
 
 A configured MCP server is not proof that it runs in the current session. Check the tool list before you rely on Boost.
 
+### Documentation and evidence
+
+| Need | Source |
+| --- | --- |
+| Laravel, Livewire, Sanctum API | Boost `search-docs` |
+| Next.js API | `frontend/node_modules/next/dist/docs/` |
+| Any other library, when installed | `ctx7` CLI (Context7) |
+
+Quote a failing check's real output. When a compressor such as RTK condensed it, re-run it unfiltered (`rtk bypass npm run check`) before you quote it.
+
 ### Where knowledge goes
 
 | Kind of knowledge | Home |
