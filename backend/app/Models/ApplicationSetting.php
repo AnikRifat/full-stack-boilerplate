@@ -8,7 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['key', 'value'])]
 class ApplicationSetting extends Model
 {
-    protected function casts(): array { return ['value' => 'json']; }
+    protected function casts(): array
+    {
+        return ['value' => 'json'];
+    }
 
     /** @return array{app_name: string, support_email: string, registration_enabled: bool} */
     public static function values(): array

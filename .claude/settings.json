@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm run check)",
+      "Bash(npm run test)",
+      "Bash(npm run build)",
+      "Bash(npm --prefix frontend run lint)",
+      "Bash(npm --prefix frontend run typecheck)",
+      "Bash(composer --working-dir=backend check)",
+      "Bash(composer --working-dir=backend test)",
+      "Bash(php backend/artisan test:*)",
+      "Bash(php backend/artisan route:list:*)",
+      "Bash(backend/vendor/bin/pint:*)"
+    ],
+    "deny": [
+      "Read(./backend/.env)",
+      "Read(./backend/.env.production)",
+      "Read(./frontend/.env.local)",
+      "Read(./frontend/.env.production)",
+      "Bash(php backend/artisan migrate:fresh:*)",
+      "Bash(php backend/artisan db:wipe:*)"
+    ]
+  }
+}

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Concerns\HasMedia;
+use App\Support\Permissions;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -10,13 +12,13 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use App\Support\Permissions;
-use App\Concerns\HasMedia;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
+    protected $attributes = ['role' => 'member', 'is_active' => true, 'extra_roles' => '[]', 'denied_permissions' => '[]'];
+
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, HasMedia, Notifiable;
 
@@ -26,7 +28,10 @@ class User extends Authenticatable
             'is_active' => 'boolean', 'extra_roles' => 'array', 'denied_permissions' => 'array'];
     }
 
-    public function isRoot(): bool { return $this->role === Permissions::ROOT_ROLE; }
+    public function isRoot(): bool
+    {
+        return $this->role === Permissions::ROOT_ROLE;
+    }
 
     public function employee(): HasOne
     {

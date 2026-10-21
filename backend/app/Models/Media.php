@@ -17,9 +17,21 @@ class Media extends Model
     /** @use HasFactory<MediaFactory> */
     use HasFactory, SoftDeletes;
 
-    protected function casts(): array { return ['size' => 'integer', 'width' => 'integer', 'height' => 'integer']; }
-    public function mediable(): MorphTo { return $this->morphTo(); }
-    public function uploader(): BelongsTo { return $this->belongsTo(User::class, 'uploaded_by'); }
+    protected function casts(): array
+    {
+        return ['size' => 'integer', 'width' => 'integer', 'height' => 'integer'];
+    }
+
+    public function mediable(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    public function uploader(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
         return $query->when(! $user->hasPermission('media.manage'), fn (Builder $q) => $q->where('uploaded_by', $user->id));

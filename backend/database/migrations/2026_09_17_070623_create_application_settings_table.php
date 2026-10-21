@@ -16,5 +16,8 @@ return new class extends Migration
         });
     }
 
-    public function down(): void { Schema::dropIfExists('application_settings'); }
+    public function down(): void
+    {
+        Schema::dropIfExists('application_settings');
+    }
 };

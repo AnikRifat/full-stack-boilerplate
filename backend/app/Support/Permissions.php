@@ -14,7 +14,10 @@ class Permissions
     /** @var array<string, RolePermission>|null */
     private ?array $rows = null;
 
-    public function flush(): void { $this->rows = null; }
+    public function flush(): void
+    {
+        $this->rows = null;
+    }
 
     public function catalogue(): array
     {
@@ -41,7 +44,10 @@ class Permissions
         return array_values(array_filter($this->assignableRoles(), fn (string $role): bool => $this->isActive($role)));
     }
 
-    public function isActive(string $role): bool { return $this->rows()[$role]->is_active ?? true; }
+    public function isActive(string $role): bool
+    {
+        return $this->rows()[$role]->is_active ?? true;
+    }
 
     public function isCustom(string $role): bool
     {
@@ -50,31 +56,52 @@ class Permissions
 
     public function label(string $role): string
     {
+        if ($role === self::ROOT_ROLE) {
+            return __('Super admin');
+        }
+
         return $this->isCustom($role) ? ($this->rows()[$role]->label ?? Str::headline($role)) : Str::headline($role);
     }
 
     public function forRole(string $role): array
     {
-        if ($role === self::ROOT_ROLE) { return $this->catalogue(); }
+        if ($role === self::ROOT_ROLE) {
+            return $this->catalogue();
+        }
+        // A system role uses its config grants until its permissions are edited; a stored null keeps the default.
         $grants = $this->isCustom($role)
             ? ($this->rows()[$role]->permissions ?? [])
-            : config("permissions.roles.{$role}", []);
+            : ($this->rows()[$role]->permissions ?? config("permissions.roles.{$role}", []));
 
-        return array_values(array_filter($this->catalogue(), fn (string $ability): bool => collect($grants)
-            ->contains(fn (string $grant): bool => $grant === '*' || $grant === $ability
-                || (str_ends_with($grant, '.*') && str_starts_with($ability, substr($grant, 0, -1)))));
+        $expanded = [];
+        foreach ($this->catalogue() as $ability) {
+            foreach ($grants as $grant) {
+                if ($grant === '*' || $grant === $ability || (str_ends_with($grant, '.*') && str_starts_with($ability, substr($grant, 0, -1)))) {
+                    $expanded[] = $ability;
+                    break;
+                }
+            }
+        }
+
+        return $expanded;
     }
 
     public function roleCeiling(string $role, array $extraRoles = []): array
     {
         $roles = array_unique([$role, ...array_intersect($extraRoles, $this->systemRoles())]);
+
         return array_values(array_unique(array_merge(...array_map(fn (string $key): array => $this->forRole($key), $roles))));
     }
 
     public function forUser(User $user): array
     {
-        if (! $user->is_active) { return []; }
-        if ($user->isRoot()) { return $this->catalogue(); }
+        if (! $user->is_active) {
+            return [];
+        }
+        if ($user->isRoot()) {
+            return $this->catalogue();
+        }
+
         return array_values(array_diff($this->roleCeiling($user->role, $user->extra_roles ?? []), $user->denied_permissions ?? []));
     }
 
@@ -88,6 +115,7 @@ class Permissions
         if (array_diff($permissions, $this->catalogue()) !== []) {
             throw ValidationException::withMessages(['permissions' => 'Unknown permission.']);
         }
+
         return array_values(array_intersect($this->catalogue(), $permissions));
     }
 

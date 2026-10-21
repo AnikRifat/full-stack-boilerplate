@@ -15,25 +15,29 @@ class Index extends Component
     use WithFileUploads, WithPagination;
 
     public $file;
+
     public string $collection = 'default';
 
-    public function upload(MediaService $service): void
+    public function saveUpload(MediaService $service): void
     {
         Gate::authorize('media.upload');
         $this->validate(MediaService::rules());
         $service->store($this->file, auth()->user(), $this->collection, auth()->user());
         $this->reset('file');
         $this->resetPage();
-        session()->flash('success', 'File uploaded.');
+        session()->flash('success', __('File uploaded.'));
     }
+
     public function delete(int $id, MediaService $service): void
     {
         $service->delete(Media::findOrFail($id), auth()->user());
-        session()->flash('success', 'File deleted. Its tracking record has been retained.');
+        session()->flash('success', __('File deleted. Its tracking record has been retained.'));
     }
+
     public function render(): View
     {
         Gate::authorize('media.view');
+
         return view('livewire.admin.media.index', ['items' => Media::visibleTo(auth()->user())->latest('id')->paginate(15), 'service' => app(MediaService::class)])->layout('layouts.admin');
     }
 }

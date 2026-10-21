@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Roles;
 use App\Models\RolePermission;
 use App\Support\Permissions;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -16,8 +17,11 @@ class Form extends Component
 {
     #[Locked]
     public ?string $roleKey = null;
+
     public string $label = '';
+
     public bool $isActive = true;
+
     public array $permissions = [];
 
     public function mount(?string $role = null): void
@@ -33,30 +37,41 @@ class Form extends Component
         }
     }
 
-    public function save(): ?Redirector
+    public function save(): Redirector|RedirectResponse|null
     {
         Gate::authorize($this->roleKey ? 'roles.update' : 'roles.create');
         $registry = app(Permissions::class);
         $this->validate(['label' => ['required', 'string', 'max:80'], 'isActive' => ['boolean'], 'permissions' => ['array'], 'permissions.*' => ['string', 'distinct', Rule::in($registry->catalogue())]]);
         $key = $this->roleKey ?? Str::slug(trim($this->label), '_');
         if ($this->roleKey === null && ($key === '' || $key === Permissions::ROOT_ROLE || in_array($key, $registry->assignableRoles(), true))) {
-            $this->addError('label', 'Choose a unique name that does not match a built-in role.');
+            $this->addError('label', __('Choose a unique name that does not match a built-in role.'));
+
             return null;
         }
         abort_if($key === Permissions::ROOT_ROLE, 403);
-        if ($this->roleKey && ! in_array($key, $registry->assignableRoles(), true)) { abort(404); }
+        if ($this->roleKey && ! in_array($key, $registry->assignableRoles(), true)) {
+            abort(404);
+        }
         if ($registry->isCustom($key)) {
             Gate::authorize('permissions.manage');
             RolePermission::updateOrCreate(['role' => $key], ['label' => trim($this->label), 'permissions' => $registry->sanitise($this->permissions), 'is_active' => $this->isActive]);
         } else {
-            if ($this->label !== $registry->label($key) || $this->permissions !== $registry->forRole($key)) {
-                $this->addError('label', 'System roles have fixed names and permissions. Create a custom role instead.');
+            if ($this->label !== $registry->label($key)) {
+                $this->addError('label', __('System roles keep their names. Create a custom role for a different name.'));
+
                 return null;
             }
-            RolePermission::firstOrCreate(['role' => $key], ['permissions' => []])->update(['is_active' => $this->isActive]);
+            // A system role row stores null permissions until they are edited, so its config defaults apply.
+            $row = RolePermission::firstOrNew(['role' => $key]);
+            $permissions = $registry->sanitise($this->permissions);
+            if ($permissions !== $registry->forRole($key)) {
+                Gate::authorize('permissions.manage');
+                $row->permissions = $permissions;
+            }
+            $row->fill(['is_active' => $this->isActive])->save();
         }
-        $registry->flush();
-        session()->flash('success', 'Role saved.');
+        session()->flash('success', __('Role saved.'));
+
         return redirect()->route('admin.roles.index');
     }
 

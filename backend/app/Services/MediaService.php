@@ -30,12 +30,24 @@ class MediaService
     public function store(UploadedFile $file, User $actor, string $collection = 'default', ?Model $owner = null): Media
     {
         Gate::forUser($actor)->authorize('media.upload');
+
+        return $this->attach($file, $actor, $collection, $owner);
+    }
+
+    /**
+     * Stores a file that belongs to a record, such as an entry's voucher. Unlike store(), it does not
+     * require the media library permission: the caller authorizes the write against the owner record.
+     */
+    public function attach(UploadedFile $file, User $actor, string $collection = 'default', ?Model $owner = null): Media
+    {
         Validator::make(['file' => $file, 'collection' => $collection], self::rules())->validate();
         $disk = config('media.disk');
         $uuid = (string) Str::uuid();
         $extension = $file->guessExtension() ?? 'bin';
         $path = Storage::disk($disk)->putFileAs('media/'.now()->format('Y/m'), $file, $uuid.'.'.$extension);
-        if (! is_string($path) || $path === '') { throw new RuntimeException('Media storage failed.'); }
+        if (! is_string($path) || $path === '') {
+            throw new RuntimeException('Media storage failed.');
+        }
         $dimensions = str_starts_with((string) $file->getMimeType(), 'image/') ? @getimagesize($file->getRealPath()) : false;
         try {
             return Media::create([
@@ -67,7 +79,15 @@ class MediaService
     public function delete(Media $media, User $actor): void
     {
         Gate::forUser($actor)->authorize('delete', $media);
-        if (! Storage::disk($media->disk)->delete($media->path)) { throw new RuntimeException('Media deletion failed.'); }
+        $this->detach($media);
+    }
+
+    /** Deletes a record's file; the caller authorizes the write against the owner record, as for attach(). */
+    public function detach(Media $media): void
+    {
+        if (! Storage::disk($media->disk)->delete($media->path)) {
+            throw new RuntimeException('Media deletion failed.');
+        }
         $media->delete();
     }
 
@@ -81,6 +101,7 @@ class MediaService
             $this->delete($replacement, $actor);
             throw $error;
         }
+
         return $replacement;
     }
 }
